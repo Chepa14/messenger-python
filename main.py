@@ -1,3 +1,5 @@
+import random
+import datetime
 from flask import Flask, request, abort
 import time
 
@@ -24,6 +26,106 @@ def check_data(data):
     return data
 
 
+def activate_bot(message):
+    sender = message['name']
+    text = message['text']
+    if text == '/help' or '/help' in text:
+        db.append({
+            'name': '[Bot Walle]',
+            'text': 'Тебя приветствует бот, который даст Вам ответ на вопросы! \n'
+                    'Список доступных команд: \n'
+                    '- /help (Информация о боте и его возможностях)\n'
+                    '- /comp *Имя* (Определяет Вашу совместимость с выбранным именем)\n'
+                    '- /8_ball *Вопрос* (Магический шар ответит на Ваш вопрос)\n'
+                    '- /when *Вопрос* (Подскажет когда произойдет событие, о котором спрашиваете)\n'
+                    '- /mark *Предмет* (Подскажет какую оценку по данному предмету Вы получите)\n'
+                    '- /animal (Даст ответ на вопрос "Кто Вы из животных?)" \n'
+                    'Пример запроса: /comp Мария,\t/when "Когда я женюсь?"\n',
+            'time': time.time()
+        })
+    if '/comp' in text:
+        parsed = text.split(sep=' ')
+        parsed = parsed[parsed.index('/comp'):]
+        name = parsed[1]
+        n = random.randint(0, 100)
+        if n < 30:
+            db.append({
+                'name': '[Bot Walle]',
+                'text': '{0}, Ваша совместимость с {1}, к сожалению, равна {2}%.'.format(sender, name, n),
+                'time': time.time()
+            })
+        elif n > 70:
+            db.append({
+                'name': '[Bot Walle]',
+                'text': '{0}, у Вас прекрасная совместимость с {1}, равная {2}%!!!'.format(sender, name, n),
+                'time': time.time()
+            })
+        else:
+            db.append({
+                'name': '[Bot Walle]',
+                'text': '{0}, Ваша совместимость с {1} ни много ни мало - {2}%!'.format(sender, name, n),
+                'time': time.time()
+            })
+    if '/8_ball' in text:
+        answers = ['Бесспорно', 'Предрешено', 'Никаких сомнений',
+                   'Определённо да', 'Можешь быть уверен в этом',
+                   'Мне кажется — «да»', 'Вероятнее всего', 'Хорошие перспективы',
+                   '(Знаки говорят — «да»', 'Да', 'Лучше не рассказывать',
+                   'Сейчас нельзя предсказать', 'Даже не думай', 'Мой ответ — «нет»',
+                   'По моим данным — «нет»', '(Перспективы не очень хорошие',
+                   'Весьма сомнительно']
+        parsed = text.split(sep=' ', maxsplit=1)
+        parsed = parsed[parsed.index('/8_ball'):]
+        question = parsed[1]
+        db.append({
+            'name': '[Bot Walle]',
+            'text': 'Магический шар думает...',
+            'time': time.time()
+        })
+        time.sleep(2.5)
+        db.append({
+            'name': '[Bot Walle]',
+            'text': '"{0}" \n{1}!'.format(
+                question, random.choice(answers)),
+            'time': time.time()
+        })
+    if '/when' in text:
+        parsed = text.split(sep=' ', maxsplit=1)
+        parsed = parsed[parsed.index('/when'):]
+        question = parsed[1]
+        day = random.randint(1, 29)
+        month = random.randint(1, 12)
+        year = random.randint(2021, 2030)
+        date = datetime.date(year, month, day)
+        db.append({
+            'name': '[Bot Walle]',
+            'text': '"{0}" \nЖди {1}!'.format(
+                question, date),
+            'time': time.time()
+        })
+    if '/mark' in text:
+        parsed = text.split(sep=' ', maxsplit=1)
+        parsed = parsed[parsed.index('/mark'):]
+        subject = parsed[1]
+        n = random.randint(1, 5)
+        db.append({
+            'name': '[Bot Walle]',
+            'text': 'Будь уверен, что по предмету "{0}" ты получишь {1} балл(-а/-ов)!'.format(
+                subject, n),
+            'time': time.time()
+        })
+    if text == '/animal' or '/animal' in text:
+        animals = ['Бизон', 'Дельфин', 'Орёл', 'Омар', 'Собака',
+                   'Корова', 'Олень', 'Утка', 'Кролик',
+                   'Волк', 'Лев', 'Свинья', 'Змея', 'Акула',
+                   'Медведь', 'Курица', 'Лошадь', 'Кошка']
+        db.append({
+            'name': '[Bot Walle]',
+            'text': f'Без сомнений Вы - {random.choice(animals)}!',
+            'time': time.time()
+        })
+
+
 @app.route('/send', methods=['POST'])
 def send_message():
     data = check_data(request.json)
@@ -35,6 +137,7 @@ def send_message():
         'time': time.time()
     }
     db.append(message)
+    activate_bot(message)
     return {'ok': True}
 
 
