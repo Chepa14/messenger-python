@@ -29,7 +29,7 @@ def check_data(data):
 def activate_bot(message):
     sender = message['name']
     text = message['text']
-    if text == '/help' or '/help' in text:
+    if '/help' in text:
         db.append({
             'name': '[Bot Walle]',
             'text': 'Тебя приветствует бот, который даст Вам ответ на вопросы! \n'
@@ -43,29 +43,32 @@ def activate_bot(message):
                     'Пример запроса: /comp Мария,\t/when "Когда я женюсь?"\n',
             'time': time.time()
         })
+        return
     if '/comp' in text:
         parsed = text.split(sep=' ')
         parsed = parsed[parsed.index('/comp'):]
-        name = parsed[1]
+        try:
+            name = parsed[1]
+        except:
+            db.append({
+                'name': '[Bot Walle]',
+                'text': 'Вы ввели некорректный запрос! Попробуйте ещё раз',
+                'time': time.time()
+            })
+            return
         n = random.randint(0, 100)
         if n < 30:
-            db.append({
-                'name': '[Bot Walle]',
-                'text': '{0}, Ваша совместимость с {1}, к сожалению, равна {2}%.'.format(sender, name, n),
-                'time': time.time()
-            })
+            output = '{0}, Ваша совместимость с {1}, к сожалению, равна {2}%.'.format(sender, name, n)
         elif n > 70:
-            db.append({
-                'name': '[Bot Walle]',
-                'text': '{0}, у Вас прекрасная совместимость с {1}, равная {2}%!!!'.format(sender, name, n),
-                'time': time.time()
-            })
+            output = '{0}, у Вас прекрасная совместимость с {1}, равная {2}%!!!'.format(sender, name, n)
         else:
-            db.append({
-                'name': '[Bot Walle]',
-                'text': '{0}, Ваша совместимость с {1} ни много ни мало - {2}%!'.format(sender, name, n),
-                'time': time.time()
-            })
+            output = '{0}, Ваша совместимость с {1} ни много ни мало - {2}%!'.format(sender, name, n)
+        db.append({
+            'name': '[Bot Walle]',
+            'text': output,
+            'time': time.time()
+        })
+        return
     if '/8_ball' in text:
         answers = ['Бесспорно', 'Предрешено', 'Никаких сомнений',
                    'Определённо да', 'Можешь быть уверен в этом',
@@ -76,7 +79,15 @@ def activate_bot(message):
                    'Весьма сомнительно']
         parsed = text.split(sep=' ', maxsplit=1)
         parsed = parsed[parsed.index('/8_ball'):]
-        question = parsed[1]
+        try:
+            question = parsed[1]
+        except:
+            db.append({
+                'name': '[Bot Walle]',
+                'text': 'Вы ввели некорректный запрос! Попробуйте ещё раз',
+                'time': time.time()
+            })
+            return
         db.append({
             'name': '[Bot Walle]',
             'text': 'Магический шар думает...',
@@ -89,10 +100,19 @@ def activate_bot(message):
                 question, random.choice(answers)),
             'time': time.time()
         })
+        return
     if '/when' in text:
         parsed = text.split(sep=' ', maxsplit=1)
         parsed = parsed[parsed.index('/when'):]
-        question = parsed[1]
+        try:
+            question = parsed[1]
+        except:
+            db.append({
+                'name': '[Bot Walle]',
+                'text': 'Вы ввели некорректный запрос! Попробуйте ещё раз',
+                'time': time.time()
+            })
+            return
         day = random.randint(1, 29)
         month = random.randint(1, 12)
         year = random.randint(2021, 2030)
@@ -103,10 +123,19 @@ def activate_bot(message):
                 question, date),
             'time': time.time()
         })
+        return
     if '/mark' in text:
         parsed = text.split(sep=' ', maxsplit=1)
         parsed = parsed[parsed.index('/mark'):]
-        subject = parsed[1]
+        try:
+            subject = parsed[1]
+        except:
+            db.append({
+                'name': '[Bot Walle]',
+                'text': 'Вы ввели некорректный запрос! Попробуйте ещё раз',
+                'time': time.time()
+            })
+            return
         n = random.randint(1, 5)
         db.append({
             'name': '[Bot Walle]',
@@ -114,7 +143,8 @@ def activate_bot(message):
                 subject, n),
             'time': time.time()
         })
-    if text == '/animal' or '/animal' in text:
+        return
+    if '/animal' in text:
         animals = ['Бизон', 'Дельфин', 'Орёл', 'Омар', 'Собака',
                    'Корова', 'Олень', 'Утка', 'Кролик',
                    'Волк', 'Лев', 'Свинья', 'Змея', 'Акула',
@@ -124,6 +154,7 @@ def activate_bot(message):
             'text': f'Без сомнений Вы - {random.choice(animals)}!',
             'time': time.time()
         })
+        return
 
 
 @app.route('/send', methods=['POST'])
